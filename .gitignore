@@ -32,3 +32,4 @@ client/dist/
 client/dist-ssr/
 server/dist/
 server/build/
+/node_modules
