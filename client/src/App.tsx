@@ -1,23 +1,70 @@
+import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useAuthStore } from './store/authStore';
+import { Toaster } from 'react-hot-toast';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+import DashboardLayout from './layouts/DashboardLayout';
+import ProtectedRoute from './components/ProtectedRoute';
+
 function App() {
-  return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col items-center justify-center p-4 font-sans">
-      <div className="max-w-md w-full bg-slate-800 rounded-2xl p-8 shadow-2xl border border-slate-700 text-center">
-        <h1 className="text-4xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400 mb-2">
-          GigFlow
-        </h1>
-        <p className="text-slate-400 mb-6 font-medium tracking-wide uppercase text-xs">
-          Smart Leads Dashboard
-        </p>
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/50 border border-slate-700/50 text-xs text-slate-300 font-semibold mb-8">
-          <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          Initial Setup Complete
+  const { checkAuth, isAuthenticated, isLoading } = useAuthStore();
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+        <div className="relative flex flex-col items-center gap-4">
+          <div className="h-12 w-12 rounded-full border-4 border-slate-800 border-t-indigo-500 animate-spin"></div>
+          <p className="text-slate-400 text-sm font-medium animate-pulse">
+            Initializing GigFlow...
+          </p>
         </div>
-        <p className="text-sm text-slate-400 leading-relaxed">
-          MERN Monorepo Project Architecture with React, Vite, Tailwind CSS v4, and Node.js backend is configured and ready.
-        </p>
       </div>
-    </div>
-  )
+    );
+  }
+
+  return (
+    <BrowserRouter>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: {
+            background: '#0f172a',
+            color: '#f8fafc',
+            border: '1px solid #1e293b',
+            borderRadius: '12px',
+          },
+          duration: 3000,
+        }}
+      />
+      <Routes>
+        {/* Public Routes - Redirect home if already logged in */}
+        <Route
+          path="/login"
+          element={isAuthenticated ? <Navigate to="/" replace /> : <Login />}
+        />
+        <Route
+          path="/register"
+          element={isAuthenticated ? <Navigate to="/" replace /> : <Register />}
+        />
+
+        {/* Protected Routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<DashboardLayout />}>
+            <Route path="/" element={<Dashboard />} />
+          </Route>
+        </Route>
+
+        {/* Fallback route */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
