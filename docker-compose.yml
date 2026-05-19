@@ -30,7 +30,7 @@ services:
       dockerfile: Dockerfile
     container_name: gigflow-client
     ports:
-      - "3000:3000"
+      - "3000:80"
     depends_on:
       - server
 
